@@ -82,7 +82,11 @@ public final class TriageController {
                 requestId, runId, orders.getFileName());
         executionLock.lock();
         try {
+            /**
+             * 初始化执行上下文
+             */
             OfflineTriageRuntime runtime = runtimeFactory.create(materials, audit, evaluationTime);
+            
             BatchResult result = runtime.batchUseCase().process(new BatchCommand(
                     orders, output, runId, evaluationTime, maxConcurrency));
             log.info("web batch triage completed requestId={} total={} failed={}",

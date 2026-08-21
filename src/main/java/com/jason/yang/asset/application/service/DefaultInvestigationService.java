@@ -74,8 +74,18 @@ public final class DefaultInvestigationService implements InvestigationPort {
         log.info("investigation started orderId={} orderType={}",
                 order.identity().value(), order.getClass().getSimpleName());
         try {
+            /**
+             * 校验客户id
+             */
             LookupResult<CustomerProfile> customer = customerPort.findCustomer(order.customerIdentity());
+            /**
+             * 校验是否支持该币种网络
+             */
             LookupResult<AssetNetworkPolicy> assetPolicy = assetPolicyPort.findPolicy(order.assetNetworkIdentity());
+
+            /**
+             * 风险地址校验
+             */
             String screeningNetwork = order.network();
             if (order instanceof OffRampOrder) {
                 screeningNetwork = ((OffRampOrder) order).deposit().observedNetwork();
@@ -83,11 +93,20 @@ public final class DefaultInvestigationService implements InvestigationPort {
             LookupResult<AddressRiskAssessment> addressRisk = addressRiskPort.screen(
                     new BlockchainAddress(order.screenedAddress(), screeningNetwork)
             );
+
+            /**
+             * 出入金金额合法校验（OnRampOrder        法币是否到账，OffRampOrder       链上充值是否确认，WithdrawalOrder    钱包余额和冻结金额是否足够）
+             */
             LookupResult<FundingEvidence> funding = funding(order);
             LookupResult<DuplicateAssessment> duplicate = duplicate(order);
+            /**
+             * 查询汇率时效性
+             */
             LookupResult<ReferenceRate> rate = referenceRate(order, policy);
             LookupResult<TravelRuleAssessment> travelRule = travelRule(order, rate);
-
+            /**
+             * 事实写入上下文
+             */
             InvestigationFacts facts = new InvestigationFacts(
                     order,
                     customer,

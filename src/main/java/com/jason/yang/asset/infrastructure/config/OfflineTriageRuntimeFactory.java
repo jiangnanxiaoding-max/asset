@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jason.yang.asset.adapter.input.JacksonOrderParser;
 import com.jason.yang.asset.application.service.DefaultInvestigationService;
+import com.jason.yang.asset.application.service.GuardedInvestigationService;
 import com.jason.yang.asset.application.service.DefaultProcessOrderBatchService;
 import com.jason.yang.asset.application.service.DefaultRuleEngine;
 import com.jason.yang.asset.application.service.DefaultTriageOrderService;
@@ -29,6 +30,12 @@ import com.jason.yang.asset.infrastructure.reference.FileAddressRiskAdapter;
 import com.jason.yang.asset.infrastructure.reference.FileAssetPolicyAdapter;
 import com.jason.yang.asset.infrastructure.reference.FileCustomerProfileAdapter;
 import com.jason.yang.asset.infrastructure.reference.FileReferenceRateAdapter;
+import com.jason.yang.asset.infrastructure.agent.InMemoryAgentRunTraceAdapter;
+import com.jason.yang.asset.infrastructure.agent.llm.AgentBatchBudget;
+import com.jason.yang.asset.infrastructure.agent.llm.AgentExecutionPolicy;
+import com.jason.yang.asset.infrastructure.agent.llm.EnvironmentLlmAgentClientFactory;
+import com.jason.yang.asset.infrastructure.agent.llm.LlmAgentInvestigationAdapter;
+import com.jason.yang.asset.infrastructure.agent.llm.PortBackedAgentToolbox;
 
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -52,17 +59,30 @@ public final class OfflineTriageRuntimeFactory {
         FileReferenceRateAdapter ratePort = new FileReferenceRateAdapter(
                 normalizedMaterials.resolve("reference_rates.json"), mapper);
         InMemoryFundsEventRegistryAdapter eventRegistry = new InMemoryFundsEventRegistryAdapter();
-        DefaultInvestigationService investigation = new DefaultInvestigationService(
+        EmbeddedFiatReceiptStubAdapter fiatPort = new EmbeddedFiatReceiptStubAdapter();
+        EmbeddedBlockchainDepositStubAdapter blockchainPort = new EmbeddedBlockchainDepositStubAdapter();
+        UnavailableWalletFundsAdapter walletPort = new UnavailableWalletFundsAdapter();
+        LocalTravelRuleAdapter travelRulePort = new LocalTravelRuleAdapter(new BigDecimal("1000"));
+        DefaultInvestigationService deterministicInvestigation = new DefaultInvestigationService(
                 customerPort,
                 assetPort,
                 riskPort,
-                new EmbeddedFiatReceiptStubAdapter(),
-                new EmbeddedBlockchainDepositStubAdapter(),
-                new UnavailableWalletFundsAdapter(),
+                fiatPort,
+                blockchainPort,
+                walletPort,
                 ratePort,
-                new LocalTravelRuleAdapter(new BigDecimal("1000")),
+                travelRulePort,
                 eventRegistry
         );
+        InMemoryAgentRunTraceAdapter agentTrace = new InMemoryAgentRunTraceAdapter();
+        PortBackedAgentToolbox agentTools = new PortBackedAgentToolbox(
+                customerPort, assetPort, riskPort, fiatPort, blockchainPort, walletPort,
+                ratePort, travelRulePort, eventRegistry);
+        LlmAgentInvestigationAdapter llmEnrichment = new LlmAgentInvestigationAdapter(
+                new EnvironmentLlmAgentClientFactory().create(mapper), agentTools,
+                AgentExecutionPolicy.demoDefaults(), AgentBatchBudget.demoDefaults(), agentTrace);
+        GuardedInvestigationService investigation = new GuardedInvestigationService(
+                deterministicInvestigation, llmEnrichment);
         JsonLinesDecisionAuditAdapter audit = new JsonLinesDecisionAuditAdapter(auditFile, mapper);
         DefaultTriageOrderService triage = new DefaultTriageOrderService(
                 new StaticPolicyProvider(evaluationTime),
@@ -77,7 +97,8 @@ public final class OfflineTriageRuntimeFactory {
                         ExecutionMode.DECISION_ONLY,
                         new RecordingCaseManagementAdapter(),
                         new RecordingFundsExecutionGateway()
-                )
+                ),
+                agentTrace
         );
         JacksonOrderParser orderParser = new JacksonOrderParser();
         DefaultProcessOrderBatchService batch = new DefaultProcessOrderBatchService(

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jason.yang.asset.application.port.DecisionAuditPort;
 import com.jason.yang.asset.application.port.BatchAuditPort;
 import com.jason.yang.asset.application.input.InputViolation;
+import com.jason.yang.asset.application.model.AgentRunTrace;
+import com.jason.yang.asset.application.model.AgentToolTrace;
 import com.jason.yang.asset.domain.Disposition;
 import com.jason.yang.asset.domain.ReasonCode;
 import com.jason.yang.asset.domain.InvestigationFacts;
@@ -72,6 +74,9 @@ public final class JsonLinesDecisionAuditAdapter implements DecisionAuditPort, B
         record.put("network", facts.order().network());
         record.put("policy_version", decision.policyVersion());
         record.put("facts", factSummary(facts));
+        if (context.agentRunTrace().isPresent()) {
+            record.put("agent", agentSummary(context.agentRunTrace().get()));
+        }
         record.put("rule_results", ruleResults.stream().map(this::ruleSummary)
                 .collect(Collectors.toList()));
         record.put("decision", decision);
@@ -118,6 +123,30 @@ public final class JsonLinesDecisionAuditAdapter implements DecisionAuditPort, B
         result.put("reference_rate", resultType(facts.referenceRate()));
         result.put("travel_rule", resultType(facts.travelRule()));
         result.put("duplicate", resultType(facts.duplicate()));
+        return result;
+    }
+
+    private Map<String, Object> agentSummary(AgentRunTrace trace) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("provider", trace.provider());
+        result.put("model", trace.model());
+        result.put("prompt_version", trace.promptVersion());
+        result.put("iterations", trace.iterations());
+        result.put("model_calls", trace.modelCalls());
+        result.put("tool_calls", trace.toolCalls());
+        result.put("retry_count", trace.retryCount());
+        result.put("tokens_used", trace.tokensUsed());
+        result.put("elapsed_millis", trace.elapsedMillis());
+        result.put("stop_reason", trace.stopReason());
+        result.put("tools", trace.tools().stream().map(this::toolSummary).collect(Collectors.toList()));
+        return result;
+    }
+
+    private Map<String, Object> toolSummary(AgentToolTrace trace) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("tool", trace.toolName());
+        result.put("result", trace.resultType());
+        result.put("elapsed_millis", trace.elapsedMillis());
         return result;
     }
 

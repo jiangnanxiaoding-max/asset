@@ -44,6 +44,8 @@ class OfflineBatchIntegrationTest {
         assertEquals(14, Files.readAllLines(audit, StandardCharsets.UTF_8).size());
         String auditContent = new String(Files.readAllBytes(audit), StandardCharsets.UTF_8);
         assertFalse(auditContent.contains("9931"), "customer note must not leak into audit");
+        assertTrue(auditContent.contains("\"agent\""), "unresolved order must contain Agent audit trace");
+        assertTrue(auditContent.contains("\"provider\":\"stub\""), "default runtime must stay offline");
     }
 
     @Test

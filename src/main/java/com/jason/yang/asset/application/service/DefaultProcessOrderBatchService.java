@@ -108,8 +108,14 @@ public final class DefaultProcessOrderBatchService implements ProcessOrderBatchU
         return new BatchResult(command.runId(), total, failed, namedCounts, elapsed);
     }
 
+    /**
+     * 解析消费order消息数据
+     */
     private Disposition processLine(BatchCommand command, long position, String line) {
         String hash = sha256(line);
+        /**
+         * 封存源数据
+         */
         RawOrderEnvelope envelope = new RawOrderEnvelope(
                 command.ordersFile().getFileName().toString(), position, line, hash, command.evaluationTime());
         OrderParseResult parseResult = parser.parse(envelope);
@@ -121,6 +127,9 @@ public final class DefaultProcessOrderBatchService implements ProcessOrderBatchU
         }
 
         Order order = ((OrderParseResult.Parsed) parseResult).order();
+        /**
+         * order执行状态幂等判断
+         */
         OrderProcessingPort.ProcessingClaim claim = processingPort.claim(order.orderId(), hash, command.runId());
         switch (claim.status()) {
             case ACQUIRED:

@@ -11,6 +11,8 @@ import com.jason.yang.asset.application.port.PolicyProvider;
 import com.jason.yang.asset.application.model.TriageResult;
 import com.jason.yang.asset.application.model.SideEffectSummary;
 import com.jason.yang.asset.application.port.PostDecisionActionPort;
+import com.jason.yang.asset.application.port.AgentRunTracePort;
+import com.jason.yang.asset.application.model.AgentRunTrace;
 import com.jason.yang.asset.domain.Order;
 import com.jason.yang.asset.domain.PolicySnapshot;
 import com.jason.yang.asset.domain.InvestigationFacts;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Application service for one exception-triage use case.
@@ -43,6 +46,7 @@ public final class DefaultTriageOrderService implements TriageOrderUseCase {
     private final TriageCaseRepository triageCaseRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final PostDecisionActionPort postDecisionActionPort;
+    private final AgentRunTracePort agentRunTracePort;
 
     public DefaultTriageOrderService(
             PolicyProvider policyProvider,
@@ -56,7 +60,7 @@ public final class DefaultTriageOrderService implements TriageOrderUseCase {
     ) {
         this(policyProvider, investigationPort, ruleEngine, decisionAggregator,
                 explanationService, auditPort, triageCaseRepository, domainEventPublisher,
-                ignored -> SideEffectSummary.none());
+                ignored -> SideEffectSummary.none(), AgentRunTracePort.none());
     }
 
     public DefaultTriageOrderService(
@@ -70,6 +74,23 @@ public final class DefaultTriageOrderService implements TriageOrderUseCase {
             DomainEventPublisher domainEventPublisher,
             PostDecisionActionPort postDecisionActionPort
     ) {
+        this(policyProvider, investigationPort, ruleEngine, decisionAggregator,
+                explanationService, auditPort, triageCaseRepository, domainEventPublisher,
+                postDecisionActionPort, AgentRunTracePort.none());
+    }
+
+    public DefaultTriageOrderService(
+            PolicyProvider policyProvider,
+            InvestigationPort investigationPort,
+            RuleEngine ruleEngine,
+            DecisionAggregator decisionAggregator,
+            DecisionExplanationService explanationService,
+            DecisionAuditPort auditPort,
+            TriageCaseRepository triageCaseRepository,
+            DomainEventPublisher domainEventPublisher,
+            PostDecisionActionPort postDecisionActionPort,
+            AgentRunTracePort agentRunTracePort
+    ) {
         this.policyProvider = Objects.requireNonNull(policyProvider);
         this.investigationPort = Objects.requireNonNull(investigationPort);
         this.ruleEngine = Objects.requireNonNull(ruleEngine);
@@ -79,6 +100,7 @@ public final class DefaultTriageOrderService implements TriageOrderUseCase {
         this.triageCaseRepository = Objects.requireNonNull(triageCaseRepository);
         this.domainEventPublisher = Objects.requireNonNull(domainEventPublisher);
         this.postDecisionActionPort = Objects.requireNonNull(postDecisionActionPort);
+        this.agentRunTracePort = Objects.requireNonNull(agentRunTracePort);
     }
 
     /** Runs the deterministic triage pipeline and returns only after audit persistence succeeds. */
@@ -98,6 +120,7 @@ public final class DefaultTriageOrderService implements TriageOrderUseCase {
         triageCase.beginInvestigation();
         PolicySnapshot policy = policyProvider.currentPolicy();
         InvestigationFacts facts = investigationPort.investigate(order, policy);
+
         List<RuleResult> ruleResults = ruleEngine.evaluateAll(facts, policy);
         TriageDecision decision = decisionAggregator.aggregate(order, ruleResults, policy);
         triageCase.recordDecision(decision);
@@ -111,9 +134,11 @@ public final class DefaultTriageOrderService implements TriageOrderUseCase {
         String explanation = explanationService.explain(decision, ruleResults);
         final String auditId;
         try {
+            Optional<AgentRunTrace> agentTrace = agentRunTracePort.take(order.identity());
             auditId = auditPort.append(
                     new DecisionAuditPort.AuditContext(
-                            command.runId(), command.payloadSha256(), command.sourcePosition()),
+                            command.runId(), command.payloadSha256(), command.sourcePosition(),
+                            agentTrace.orElse(null)),
                     decision, facts, ruleResults, explanation);
         } catch (RuntimeException exception) {
             log.error("triage audit failed orderId={} disposition={}",
