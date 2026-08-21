@@ -1,0 +1,12 @@
+{
+  "USDT": {
+    "ERC20": { "min_amount": 20, "confirmations_required": 12 },
+    "TRC20": { "min_amount": 10, "confirmations_required": 20 }
+  },
+  "BTC": {
+    "BTC": { "min_amount": 0.0005, "confirmations_required": 3 }
+  },
+  "ETH": {
+    "ERC20": { "min_amount": 0.005, "confirmations_required": 12 }
+  }
+}

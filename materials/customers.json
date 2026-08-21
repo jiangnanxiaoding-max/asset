@@ -1,0 +1,6 @@
+{
+  "c001": { "name": "陈爱丽", "kyc_tier": 2, "monthly_limit_usd": 50000,  "verified_bank_name": "陈爱丽", "status": "active" },
+  "c002": { "name": "黄博",   "kyc_tier": 1, "monthly_limit_usd": 2000,   "verified_bank_name": "黄博",   "status": "active" },
+  "c003": { "name": "李卡罗", "kyc_tier": 3, "monthly_limit_usd": 500000, "verified_bank_name": "李卡罗", "status": "active" },
+  "c004": { "name": "林丹",   "kyc_tier": 2, "monthly_limit_usd": 50000,  "verified_bank_name": "林丹",   "status": "review_hold" }
+}

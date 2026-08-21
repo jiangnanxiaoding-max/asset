@@ -24,14 +24,15 @@
 ```text
 com.jason.yang.asset
 ├── domain
-│   ├── order          # 三类订单和值对象
-│   ├── decision       # 处置、原因、规则结果
-│   ├── policy         # 策略快照和规则接口
-│   └── audit          # 审计模型
+│   ├── TriageCase     # 聚合根，维护调查、决策、审计状态机
+│   ├── Order/*Amount  # 三类订单与强类型值对象
+│   ├── policy         # 纯领域规则，无 I/O
+│   ├── service        # 决策聚合等跨对象领域服务
+│   └── repository     # 聚合仓储接口
 ├── application
-│   ├── port.in        # 批处理、单笔分诊、评测入口
-│   ├── port.out       # Agent 所需工具和外部系统端口
-│   └── service        # Agent 编排、规则聚合、解释生成
+│   ├── model          # 用例输出模型
+│   ├── port           # Agent 工具、审计和事件发布端口
+│   └── service        # 用例编排、事实收集和解释生成
 ├── adapter
 │   ├── in.cli         # triage/evaluate 命令
 │   ├── out.file       # 题目 JSON/JSONL 文件适配器
@@ -49,8 +50,8 @@ com.jason.yang.asset
 ```java
 public record OrderId(String value) {}
 public record CustomerId(String value) {}
-public record DecisionId(UUID value) {}
-public record AuditId(UUID value) {}
+public record DecisionId(String value) {}
+public record AuditId(String value) {}
 public record CaseId(String value) {}
 public record PolicyVersion(String value) {}
 public record EvidenceRef(String source, String version, String key) {}
@@ -68,10 +69,11 @@ public record FiatMoney(
     CurrencyCode currency
 ) {}
 
-public record CryptoMoney(
-    BigDecimal amount,
-    AssetCode asset,
-    NetworkCode network
+public record AssetNetwork(String asset, String network) {}
+
+public record CryptoAmount(
+    BigDecimal value,
+    AssetNetwork assetNetwork
 ) {}
 
 public record RatePair(
@@ -86,6 +88,20 @@ public record RatePair(
 - 金额必须大于零。
 - 金额比较前必须使用资产/币种精度和明确舍入模式。
 - 所有时间使用 `Instant`，不得依赖服务器本地时区。
+
+### 4.1 分诊聚合根
+
+`TriageCase` 是一致性边界，状态只能按以下顺序变化：
+
+```text
+RECEIVED -> INVESTIGATING -> DECIDED -> AUDITED
+```
+
+- 未开始调查不能记录决定。
+- 决定必须属于同一个 `OrderId`。
+- 未形成决定不能写入审计引用。
+- 只有 `AUDITED + AUTO_COMPLETE` 才能返回资金执行资格。
+- 聚合形成决定时发布 `OrderTriaged`；冻结时额外发布 `ComplianceFreezeRequired`。
 
 ## 5. 标准工具返回模型
 
@@ -1092,3 +1108,23 @@ CLI / Batch
 - 相同事实快照和策略版本产生相同结构化决定。
 - 关闭 LLM 或没有 API Key 时，全部队列和评测仍能运行。
 - 新增一条规则只需新增 `TriageRule` 并注册，不修改 Agent 主流程。
+
+## 26. 当前实现对应关系
+
+| 能力 | 当前实现 |
+| --- | --- |
+| 严格 JSONL 解析 | `adapter.input.JacksonOrderParser` |
+| 单笔分诊 | `application.service.DefaultTriageOrderService` |
+| 批处理 | `application.service.DefaultProcessOrderBatchService` |
+| 领域规则 | `domain.policy.*` |
+| 决策聚合 | `domain.service.DefaultDecisionAggregator` |
+| 客户/资产/风险/汇率 | `infrastructure.reference.File*Adapter` |
+| 到账事实 | `infrastructure.funding.Embedded*StubAdapter` |
+| 提币资金 | `UnavailableWalletFundsAdapter`，默认拒绝自动执行 |
+| 订单与 tx 幂等 | `InMemoryOrderProcessingAdapter`、`InMemoryFundsEventRegistryAdapter` |
+| 追加式审计 | `JsonLinesDecisionAuditAdapter` |
+| 工单与执行占位 | `RecordingCaseManagementAdapter`、`RecordingFundsExecutionGateway` |
+| Golden evaluation | `JsonGoldenEvaluationService` |
+| CLI | `adapter.cli.TriageCliRunner` |
+
+实际代码采用 `com.jason.yang.asset` 作为基础包。详细的题目级假设、被砍掉的备选方案和生产化缺口见 `doc/DECISIONS.md`。

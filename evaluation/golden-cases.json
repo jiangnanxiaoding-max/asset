@@ -1,0 +1,16 @@
+{
+  "O-001": { "disposition": "AUTO_COMPLETE", "required_reason_codes": ["ALL_CHECKS_PASSED"], "auto_complete_safe": true },
+  "O-002": { "disposition": "AUTO_COMPLETE", "required_reason_codes": ["ALL_CHECKS_PASSED"], "auto_complete_safe": true },
+  "O-003": { "disposition": "FREEZE_COMPLIANCE", "required_reason_codes": ["ADDRESS_SANCTIONED"], "auto_complete_safe": false },
+  "O-004": { "disposition": "HOLD", "required_reason_codes": ["ADDRESS_MEDIUM_RISK"], "auto_complete_safe": false },
+  "O-005": { "disposition": "MANUAL_REVIEW", "required_reason_codes": ["AMOUNT_MISMATCH"], "auto_complete_safe": false },
+  "O-006": { "disposition": "REQUOTE", "required_reason_codes": ["QUOTE_SLIPPAGE_EXCEEDED"], "auto_complete_safe": false },
+  "O-007": { "disposition": "OPS_RECOVERY", "required_reason_codes": ["DEPOSIT_NETWORK_MISMATCH"], "auto_complete_safe": false },
+  "O-008": { "disposition": "OPS_RECOVERY", "required_reason_codes": ["UNSUPPORTED_ASSET_OR_NETWORK"], "auto_complete_safe": false },
+  "O-009": { "disposition": "HOLD", "required_reason_codes": ["INSUFFICIENT_CONFIRMATIONS"], "auto_complete_safe": false },
+  "O-010": { "disposition": "REJECT_ESCALATE", "required_reason_codes": ["LIMIT_EXCEEDED"], "auto_complete_safe": false },
+  "O-011": { "disposition": "HOLD", "required_reason_codes": ["TOOL_UNAVAILABLE", "TRAVEL_RULE_INFO_MISSING"], "auto_complete_safe": false },
+  "O-012": { "disposition": "REJECT_ESCALATE", "required_reason_codes": ["BANK_NAME_MISMATCH"], "auto_complete_safe": false },
+  "O-013": { "disposition": "DUPLICATE_NOOP", "required_reason_codes": ["DUPLICATE_TX_HASH"], "auto_complete_safe": false },
+  "O-014": { "disposition": "HOLD", "required_reason_codes": ["ADDRESS_MEDIUM_RISK"], "auto_complete_safe": false }
+}

@@ -1,0 +1,8 @@
+{
+  "0xCLEAN01": { "risk_score": 5,  "category": "clean" },
+  "0xCLEAN02": { "risk_score": 10, "category": "clean" },
+  "0xMIXER01": { "risk_score": 80, "category": "mixer" },
+  "0xMIXER02": { "risk_score": 72, "category": "mixer" },
+  "0xSANCT01": { "risk_score": 99, "category": "sanctioned" },
+  "0xDARK01":  { "risk_score": 85, "category": "darknet" }
+}
