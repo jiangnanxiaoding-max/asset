@@ -1,13 +1,12 @@
 package com.jason.yang.asset.adapter.web;
 
-import com.jason.yang.asset.application.batch.BatchCommand;
 import com.jason.yang.asset.application.batch.BatchResult;
+import com.jason.yang.asset.application.batch.RunTriageQueueResult;
+import com.jason.yang.asset.application.batch.RunTriageQueueUseCase;
 import com.jason.yang.asset.application.evaluation.EvaluateTriageUseCase;
 import com.jason.yang.asset.application.evaluation.EvaluationCommand;
 import com.jason.yang.asset.application.evaluation.EvaluationFailure;
 import com.jason.yang.asset.application.evaluation.EvaluationReport;
-import com.jason.yang.asset.infrastructure.config.OfflineTriageRuntimeFactory;
-import com.jason.yang.asset.infrastructure.config.OfflineTriageRuntime;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.locks.ReentrantLock;
 
 /** HTTP test adapter exposing the same file-driven triage and evaluation flows as the CLI. */
 @RestController
@@ -34,40 +31,24 @@ public final class TriageController {
     static final String REQUEST_ID_ATTRIBUTE = TriageController.class.getName() + ".requestId";
     private static final Logger log = LoggerFactory.getLogger(TriageController.class);
 
-    private final OfflineTriageRuntimeFactory runtimeFactory;
+    private final RunTriageQueueUseCase runTriageQueueUseCase;
     private final EvaluateTriageUseCase evaluationUseCase;
     private final Path materials;
-    private final Path orders;
-    private final Path output;
-    private final Path audit;
     private final Path goldenCases;
     private final Path evaluationReport;
-    private final Instant evaluationTime;
-    private final int maxConcurrency;
-    private final ReentrantLock executionLock = new ReentrantLock();
 
     public TriageController(
-            OfflineTriageRuntimeFactory runtimeFactory,
+            RunTriageQueueUseCase runTriageQueueUseCase,
             EvaluateTriageUseCase evaluationUseCase,
             @Value("${asset.materials:materials}") String materials,
-            @Value("${asset.orders-file:materials/orders.jsonl}") String orders,
-            @Value("${asset.output-file:build/decisions.jsonl}") String output,
-            @Value("${asset.audit-file:build/audit.jsonl}") String audit,
             @Value("${asset.golden-cases:evaluation/golden-cases.json}") String goldenCases,
-            @Value("${asset.evaluation-report:build/evaluation-report.json}") String evaluationReport,
-            @Value("${asset.evaluation-time:2026-07-28T12:00:00Z}") Instant evaluationTime,
-            @Value("${asset.max-concurrency:1}") int maxConcurrency
+            @Value("${asset.evaluation-report:build/evaluation-report.json}") String evaluationReport
     ) {
-        this.runtimeFactory = runtimeFactory;
+        this.runTriageQueueUseCase = runTriageQueueUseCase;
         this.evaluationUseCase = evaluationUseCase;
         this.materials = normalized(materials);
-        this.orders = normalized(orders);
-        this.output = normalized(output);
-        this.audit = normalized(audit);
         this.goldenCases = normalized(goldenCases);
         this.evaluationReport = normalized(evaluationReport);
-        this.evaluationTime = evaluationTime;
-        this.maxConcurrency = maxConcurrency;
     }
 
     /** Reads the configured JSONL queue and writes the same decision and audit files as CLI triage. */
@@ -77,24 +58,13 @@ public final class TriageController {
             HttpServletRequest request
     ) {
         String requestId = prepareRequest(request, suppliedRequestId);
-        String runId = "web-" + requestId;
-        log.info("web batch triage started requestId={} runId={} orders={}",
-                requestId, runId, orders.getFileName());
-        executionLock.lock();
-        try {
-            /**
-             * 初始化执行上下文
-             */
-            OfflineTriageRuntime runtime = runtimeFactory.create(materials, audit, evaluationTime);
-            
-            BatchResult result = runtime.batchUseCase().process(new BatchCommand(
-                    orders, output, runId, evaluationTime, maxConcurrency));
-            log.info("web batch triage completed requestId={} total={} failed={}",
-                    requestId, result.total(), result.failed());
-            return BatchTestResponse.from(requestId, result, output, audit);
-        } finally {
-            executionLock.unlock();
-        }
+        log.info("web batch triage started requestId={}", requestId);
+        RunTriageQueueResult execution = runTriageQueueUseCase.run();
+        BatchResult result = execution.batchResult();
+        log.info("web batch triage completed requestId={} total={} failed={}",
+                requestId, result.total(), result.failed());
+        return BatchTestResponse.from(
+                requestId, result, execution.outputFile(), execution.auditFile());
     }
 
     /** Runs the configured golden cases through the same evaluation use case as CLI evaluate. */
@@ -106,16 +76,11 @@ public final class TriageController {
         String requestId = prepareRequest(request, suppliedRequestId);
         log.info("web evaluation started requestId={} goldenCases={}",
                 requestId, goldenCases.getFileName());
-        executionLock.lock();
-        try {
-            EvaluationReport result = evaluationUseCase.evaluate(
-                    new EvaluationCommand(materials, goldenCases, evaluationReport));
-            log.info("web evaluation completed requestId={} cases={} failed={} unsafe={}",
-                    requestId, result.cases(), result.failed(), result.unsafeAutoCompletions());
-            return EvaluationTestResponse.from(requestId, result, evaluationReport);
-        } finally {
-            executionLock.unlock();
-        }
+        EvaluationReport result = evaluationUseCase.evaluate(
+                new EvaluationCommand(materials, goldenCases, evaluationReport));
+        log.info("web evaluation completed requestId={} cases={} failed={} unsafe={}",
+                requestId, result.cases(), result.failed(), result.unsafeAutoCompletions());
+        return EvaluationTestResponse.from(requestId, result, evaluationReport);
     }
 
     private String prepareRequest(HttpServletRequest request, String suppliedRequestId) {

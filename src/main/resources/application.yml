@@ -7,10 +7,5 @@ server:
 
 asset:
   materials: materials
-  orders-file: materials/orders.jsonl
-  output-file: build/decisions.jsonl
-  audit-file: build/audit.jsonl
   golden-cases: evaluation/golden-cases.json
   evaluation-report: build/evaluation-report.json
-  evaluation-time: 2026-07-28T12:00:00Z
-  max-concurrency: 1

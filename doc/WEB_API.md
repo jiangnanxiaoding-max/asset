@@ -78,16 +78,11 @@ Invoke-RestMethod `
 ```yaml
 asset:
   materials: materials
-  orders-file: materials/orders.jsonl
-  output-file: build/decisions.jsonl
-  audit-file: build/audit.jsonl
   golden-cases: evaluation/golden-cases.json
   evaluation-report: build/evaluation-report.json
-  evaluation-time: 2026-07-28T12:00:00Z
-  max-concurrency: 1
 ```
 
-Web 测试接口内部串行执行，避免两个请求同时覆盖输出文件。每次分诊都会创建独立的离线 Runtime，重复调用不会继承上一次的内存幂等状态。
+分诊队列的固定文件路径、评估时刻和并发度由 `DefaultRunTriageQueueService` 统一初始化。Web 与 CLI 都直接调用同一个无参 `RunTriageQueueUseCase.run()`；应用服务内部串行执行，并复用相同配置对应的离线 Runtime。
 
 ## 6. CLI 仍然可用
 
