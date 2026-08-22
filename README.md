@@ -180,6 +180,8 @@ infrastructure/   文件数据源、Agent Provider、审计、幂等和外部端
 - [核心流程](doc/CORE_PROCESS_FLOW.md)
 - [LLM Agent 实现说明](doc/LLM_AGENT_DEMO.md)
 - [Web API](doc/WEB_API.md)
+- [代码走读指导](doc/CODE_WALKTHROUGH_GUIDE.md)
+- [LLM Demo 代码走读手册](doc/LLM_DEMO_CODE_WALKTHROUGH.md)
 
 ## 常见问题
 

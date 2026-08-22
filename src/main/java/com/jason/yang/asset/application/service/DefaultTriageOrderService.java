@@ -148,7 +148,13 @@ public final class DefaultTriageOrderService implements TriageOrderUseCase {
 
         triageCase.markAudited(auditId);
         triageCaseRepository.save(triageCase);
+        /**
+         * 发布审核结果事件
+         */
         domainEventPublisher.publish(triageCase.domainEvents());
+        /**
+         * 决定完成并且审计成功之后的后续动作
+         */
         SideEffectSummary sideEffects = postDecisionActionPort.handle(triageCase);
 
         log.info("triage completed orderId={} disposition={} auditId={} ruleCount={}",
