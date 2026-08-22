@@ -27,6 +27,9 @@ public final class FactAvailabilityRule implements TriageRule {
                 facts.duplicate()
         );
 
+        /**
+         * 外部数据冲突
+         */
         if (results.stream().anyMatch(result -> result instanceof LookupResult.Conflict<?>)) {
             return RuleResult.fail(
                     id(),
@@ -35,6 +38,9 @@ public final class FactAvailabilityRule implements TriageRule {
                     "权威事实存在冲突，已停止自动处理"
             );
         }
+        /**
+         * 事实服务不可用
+         */
         if (results.stream().anyMatch(result -> result instanceof LookupResult.Unavailable<?>)) {
             return RuleResult.fail(
                     id(),

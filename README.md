@@ -77,5 +77,6 @@ curl -X POST http://localhost:8080/api/v1/test/evaluate
 - [需求分析](doc/INTERVIEW_REQUIREMENTS_ANALYSIS.md)
 - [接口定义](doc/INTERFACE_DEFINITIONS.md)
 - [核心流程](doc/CORE_PROCESS_FLOW.md)
+- [领域模型 UML](doc/DOMAIN_MODEL_UML.md)
 - [代码走读指南](doc/CODE_WALKTHROUGH_GUIDE.md)
 - [LLM Demo 走读手册](doc/LLM_DEMO_CODE_WALKTHROUGH.md)

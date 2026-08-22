@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="620" viewBox="0 0 1600 620">
+  <defs>
+    <style>
+      .bg { fill:#f8fafc; }
+      .title { font:700 32px 'Microsoft YaHei',Arial,sans-serif; fill:#0f172a; }
+      .state { fill:#eff6ff; stroke:#2563eb; stroke-width:3; }
+      .terminal { fill:#f0fdf4; stroke:#15803d; stroke-width:3; }
+      .blocked { fill:#fff1f2; stroke:#be123c; stroke-width:3; }
+      .name { font:700 21px Consolas,'Microsoft YaHei',monospace; fill:#0f172a; }
+      .label { font:17px 'Microsoft YaHei',Arial,sans-serif; fill:#334155; paint-order:stroke; stroke:#f8fafc; stroke-width:6; }
+      .note { font:16px 'Microsoft YaHei',Arial,sans-serif; fill:#475569; }
+      .arrow { fill:none; stroke:#334155; stroke-width:3; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 1 1 L 10 6 L 1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1600" height="620"/>
+  <text class="title" x="800" y="52" text-anchor="middle">TriageCase 聚合状态 UML</text>
+
+  <circle cx="70" cy="205" r="15" fill="#0f172a"/>
+  <rect class="state" x="150" y="155" width="235" height="100" rx="28"/>
+  <text class="name" x="268" y="214" text-anchor="middle">RECEIVED</text>
+
+  <rect class="state" x="485" y="155" width="260" height="100" rx="28"/>
+  <text class="name" x="615" y="214" text-anchor="middle">INVESTIGATING</text>
+
+  <rect class="state" x="850" y="155" width="235" height="100" rx="28"/>
+  <text class="name" x="968" y="214" text-anchor="middle">DECIDED</text>
+
+  <rect class="state" x="1190" y="155" width="235" height="100" rx="28"/>
+  <text class="name" x="1308" y="214" text-anchor="middle">AUDITED</text>
+
+  <path class="arrow" d="M85 205 L150 205" marker-end="url(#arrow)"/>
+  <text class="label" x="118" y="185" text-anchor="middle">open(order)</text>
+  <path class="arrow" d="M385 205 L485 205" marker-end="url(#arrow)"/>
+  <text class="label" x="435" y="182" text-anchor="middle">beginInvestigation()</text>
+  <path class="arrow" d="M745 205 L850 205" marker-end="url(#arrow)"/>
+  <text class="label" x="798" y="182" text-anchor="middle">recordDecision()</text>
+  <path class="arrow" d="M1085 205 L1190 205" marker-end="url(#arrow)"/>
+  <text class="label" x="1138" y="182" text-anchor="middle">markAudited()</text>
+
+  <rect class="terminal" x="1030" y="405" width="255" height="95" rx="25"/>
+  <text class="name" x="1158" y="445" text-anchor="middle">FUNDS ELIGIBLE</text>
+  <text class="note" x="1158" y="475" text-anchor="middle">仅 AUTO_COMPLETE</text>
+
+  <rect class="blocked" x="1325" y="405" width="225" height="95" rx="25"/>
+  <text class="name" x="1438" y="445" text-anchor="middle">BLOCKED</text>
+  <text class="note" x="1438" y="475" text-anchor="middle">其他全部处置</text>
+
+  <path class="arrow" d="M1308 255 L1308 330 L1158 330 L1158 405" marker-end="url(#arrow)"/>
+  <text class="label" x="1190" y="318">disposition= AUTO_COMPLETE</text>
+  <text class="label" x="1190" y="345">且 fundsMovementAllowed=true</text>
+
+  <path class="arrow" d="M1308 255 L1308 360 L1438 360 L1438 405" marker-end="url(#arrow)"/>
+  <text class="label" x="1410" y="345">其他情况</text>
+
+  <rect x="120" y="390" width="730" height="150" rx="12" fill="#fff" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8 6"/>
+  <text class="note" x="150" y="425">聚合不变量</text>
+  <text class="note" x="150" y="457">1. 不允许跳过或逆转状态；决定只能在调查开始后写入。</text>
+  <text class="note" x="150" y="489">2. 审计成功前，任何决定都不具备资金执行资格。</text>
+  <text class="note" x="150" y="521">3. 非 AUTO_COMPLETE 永远进入 BLOCKED 分支。</text>
+</svg>

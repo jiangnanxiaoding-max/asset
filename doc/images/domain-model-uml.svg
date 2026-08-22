@@ -1,0 +1,273 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="1460" viewBox="0 0 2000 1460">
+  <defs>
+    <style>
+      .bg { fill:#f7f9fc; }
+      .section { fill:none; stroke:#94a3b8; stroke-width:2; stroke-dasharray:10 8; rx:18; }
+      .entity { fill:#fff7ed; stroke:#c2410c; stroke-width:2.5; }
+      .aggregate { fill:#fff1f2; stroke:#be123c; stroke-width:3.5; }
+      .value { fill:#eff6ff; stroke:#2563eb; stroke-width:2.2; }
+      .service { fill:#f0fdf4; stroke:#15803d; stroke-width:2.5; }
+      .policy { fill:#faf5ff; stroke:#7e22ce; stroke-width:2.5; }
+      .snapshot { fill:#f8fafc; stroke:#475569; stroke-width:2.2; }
+      .enum { fill:#fefce8; stroke:#a16207; stroke-width:2.2; }
+      .title { font:700 34px 'Microsoft YaHei',Arial,sans-serif; fill:#0f172a; }
+      .subtitle { font:600 21px 'Microsoft YaHei',Arial,sans-serif; fill:#334155; }
+      .name { font:700 21px Consolas,'Microsoft YaHei',monospace; fill:#0f172a; }
+      .stereo { font:italic 16px 'Microsoft YaHei',Arial,sans-serif; fill:#475569; }
+      .member { font:16px Consolas,'Microsoft YaHei',monospace; fill:#1e293b; }
+      .small { font:15px 'Microsoft YaHei',Arial,sans-serif; fill:#334155; }
+      .label { font:16px 'Microsoft YaHei',Arial,sans-serif; fill:#334155; paint-order:stroke; stroke:#f7f9fc; stroke-width:5; }
+      .separator { stroke:#94a3b8; stroke-width:1.4; }
+      .rel { fill:none; stroke:#334155; stroke-width:2.2; }
+      .dep { fill:none; stroke:#64748b; stroke-width:2; stroke-dasharray:8 6; }
+    </style>
+    <marker id="triangle" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M 12 7 L 1 1 L 1 13 Z" fill="#f7f9fc" stroke="#334155" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 1 L 10 6 L 1 11 Z" fill="#334155"/>
+    </marker>
+    <marker id="diamond" markerWidth="16" markerHeight="12" refX="2" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 6 L 7 1 L 13 6 L 7 11 Z" fill="#334155" stroke="#334155"/>
+    </marker>
+    <marker id="openDiamond" markerWidth="16" markerHeight="12" refX="2" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 6 L 7 1 L 13 6 L 7 11 Z" fill="#f7f9fc" stroke="#334155" stroke-width="1.5"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="2000" height="1460"/>
+  <text class="title" x="1000" y="52" text-anchor="middle">Asset Exception Triage — 领域模型 UML</text>
+  <text class="small" x="1000" y="82" text-anchor="middle">当前代码模型（as-is）：订单、案件聚合、事实快照、规则与最终决定</text>
+
+  <rect class="section" x="25" y="105" width="840" height="850"/>
+  <text class="subtitle" x="50" y="140">订单模型</text>
+
+  <g id="order">
+    <rect class="entity" x="260" y="165" width="370" height="225" rx="8"/>
+    <text class="stereo" x="445" y="192" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="name" x="445" y="220" text-anchor="middle">Order</text>
+    <line class="separator" x1="260" y1="232" x2="630" y2="232"/>
+    <text class="member" x="280" y="260">+ orderId(): String</text>
+    <text class="member" x="280" y="286">+ customerId(): String</text>
+    <text class="member" x="280" y="312">+ assetNetworkIdentity(): AssetNetwork</text>
+    <text class="member" x="280" y="338">+ counterparty(): CounterpartyInfo</text>
+    <text class="member" x="280" y="364">+ requestedCryptoAmount(): CryptoAmount</text>
+  </g>
+
+  <g id="onRamp">
+    <rect class="entity" x="45" y="500" width="250" height="280" rx="8"/>
+    <text class="name" x="170" y="532" text-anchor="middle">OnRampOrder</text>
+    <line class="separator" x1="45" y1="545" x2="295" y2="545"/>
+    <text class="member" x="62" y="574">- orderId</text>
+    <text class="member" x="62" y="600">- customerId</text>
+    <text class="member" x="62" y="626">- asset / network</text>
+    <text class="member" x="62" y="652">- fiatAmountUsd</text>
+    <text class="member" x="62" y="678">- quotedCryptoAmount</text>
+    <text class="member" x="62" y="704">- quoteExpiresAt</text>
+    <text class="member" x="62" y="730">- destinationAddress</text>
+    <text class="member" x="62" y="756">- counterparty</text>
+  </g>
+
+  <g id="offRamp">
+    <rect class="entity" x="320" y="500" width="250" height="305" rx="8"/>
+    <text class="name" x="445" y="532" text-anchor="middle">OffRampOrder</text>
+    <line class="separator" x1="320" y1="545" x2="570" y2="545"/>
+    <text class="member" x="337" y="574">- orderId</text>
+    <text class="member" x="337" y="600">- customerId</text>
+    <text class="member" x="337" y="626">- asset / network</text>
+    <text class="member" x="337" y="652">- quotedCryptoAmount</text>
+    <text class="member" x="337" y="678">- quoteExpiresAt</text>
+    <text class="member" x="337" y="704">- deposit</text>
+    <text class="member" x="337" y="730">- payout</text>
+    <text class="member" x="337" y="756">- counterparty</text>
+    <text class="member" x="337" y="782">+ screenedAddress()</text>
+  </g>
+
+  <g id="withdrawal">
+    <rect class="entity" x="595" y="500" width="245" height="255" rx="8"/>
+    <text class="name" x="718" y="532" text-anchor="middle">WithdrawalOrder</text>
+    <line class="separator" x1="595" y1="545" x2="840" y2="545"/>
+    <text class="member" x="612" y="574">- orderId</text>
+    <text class="member" x="612" y="600">- customerId</text>
+    <text class="member" x="612" y="626">- asset / network</text>
+    <text class="member" x="612" y="652">- amount</text>
+    <text class="member" x="612" y="678">- destinationAddress</text>
+    <text class="member" x="612" y="704">- counterparty</text>
+    <text class="member" x="612" y="730">+ screenedAddress()</text>
+  </g>
+
+  <path class="rel" d="M170 500 L170 445 L445 445 L445 390" marker-end="url(#triangle)"/>
+  <path class="rel" d="M445 500 L445 390" marker-end="url(#triangle)"/>
+  <path class="rel" d="M718 500 L718 445 L445 445 L445 390" marker-end="url(#triangle)"/>
+  <text class="label" x="205" y="435">implements</text>
+
+  <g id="orderValues">
+    <rect class="value" x="65" y="845" width="750" height="80" rx="10"/>
+    <text class="stereo" x="440" y="870" text-anchor="middle">&lt;&lt;Value Objects&gt;&gt;</text>
+    <text class="member" x="90" y="900">OrderId · CustomerId · AssetNetwork · CryptoAmount · CounterpartyInfo · DepositReference · BankPayout</text>
+  </g>
+  <path class="dep" d="M445 805 L445 845" marker-end="url(#arrow)"/>
+
+  <rect class="section" x="890" y="105" width="1085" height="850"/>
+  <text class="subtitle" x="915" y="140">案件聚合与决定</text>
+
+  <g id="triageCase">
+    <rect class="aggregate" x="955" y="175" width="440" height="330" rx="10"/>
+    <text class="stereo" x="1175" y="204" text-anchor="middle">&lt;&lt;Aggregate Root&gt;&gt;</text>
+    <text class="name" x="1175" y="234" text-anchor="middle">TriageCase</text>
+    <line class="separator" x1="955" y1="248" x2="1395" y2="248"/>
+    <text class="member" x="978" y="278">- id: OrderId</text>
+    <text class="member" x="978" y="304">- order: Order</text>
+    <text class="member" x="978" y="330">- status: Status</text>
+    <text class="member" x="978" y="356">- decision: TriageDecision [0..1]</text>
+    <text class="member" x="978" y="382">- auditId: AuditId [0..1]</text>
+    <line class="separator" x1="955" y1="396" x2="1395" y2="396"/>
+    <text class="member" x="978" y="426">+ beginInvestigation()</text>
+    <text class="member" x="978" y="452">+ recordDecision(decision)</text>
+    <text class="member" x="978" y="478">+ fundsMovementEligible(): boolean</text>
+  </g>
+
+  <g id="decision">
+    <rect class="entity" x="1500" y="175" width="410" height="305" rx="8"/>
+    <text class="stereo" x="1705" y="204" text-anchor="middle">&lt;&lt;Decision Entity&gt;&gt;</text>
+    <text class="name" x="1705" y="234" text-anchor="middle">TriageDecision</text>
+    <line class="separator" x1="1500" y1="248" x2="1910" y2="248"/>
+    <text class="member" x="1522" y="278">- decisionId: DecisionId</text>
+    <text class="member" x="1522" y="304">- orderId: OrderId</text>
+    <text class="member" x="1522" y="330">- disposition: Disposition</text>
+    <text class="member" x="1522" y="356">- reasonCodes: List&lt;ReasonCode&gt;</text>
+    <text class="member" x="1522" y="382">- fundsMovementAllowed: boolean</text>
+    <text class="member" x="1522" y="408">- policyVersion: String</text>
+    <text class="member" x="1522" y="434">- evaluatedAt: Instant</text>
+  </g>
+
+  <path class="rel" d="M1395 330 L1500 330" marker-start="url(#openDiamond)" marker-end="url(#arrow)"/>
+  <text class="label" x="1448" y="315" text-anchor="middle">0..1</text>
+  <path class="rel" d="M955 304 L630 304" marker-start="url(#diamond)" marker-end="url(#arrow)"/>
+  <text class="label" x="790" y="290" text-anchor="middle">1 order</text>
+
+  <g id="status">
+    <rect class="enum" x="955" y="565" width="300" height="185" rx="8"/>
+    <text class="stereo" x="1105" y="592" text-anchor="middle">&lt;&lt;enumeration&gt;&gt;</text>
+    <text class="name" x="1105" y="620" text-anchor="middle">TriageCase.Status</text>
+    <line class="separator" x1="955" y1="633" x2="1255" y2="633"/>
+    <text class="member" x="980" y="662">RECEIVED</text>
+    <text class="member" x="980" y="688">INVESTIGATING</text>
+    <text class="member" x="980" y="714">DECIDED</text>
+    <text class="member" x="980" y="740">AUDITED</text>
+  </g>
+
+  <g id="disposition">
+    <rect class="enum" x="1320" y="550" width="310" height="285" rx="8"/>
+    <text class="stereo" x="1475" y="578" text-anchor="middle">&lt;&lt;enumeration&gt;&gt;</text>
+    <text class="name" x="1475" y="606" text-anchor="middle">Disposition</text>
+    <line class="separator" x1="1320" y1="619" x2="1630" y2="619"/>
+    <text class="member" x="1345" y="648">AUTO_COMPLETE</text>
+    <text class="member" x="1345" y="674">HOLD / MANUAL_REVIEW</text>
+    <text class="member" x="1345" y="700">FREEZE_COMPLIANCE</text>
+    <text class="member" x="1345" y="726">REJECT_ESCALATE</text>
+    <text class="member" x="1345" y="752">REQUOTE / REFUND_REVIEW</text>
+    <text class="member" x="1345" y="778">OPS_RECOVERY</text>
+    <text class="member" x="1345" y="804">DUPLICATE_NOOP / INVALID_INPUT</text>
+  </g>
+
+  <g id="events">
+    <rect class="value" x="1690" y="560" width="250" height="190" rx="8"/>
+    <text class="stereo" x="1815" y="588" text-anchor="middle">&lt;&lt;Domain Events&gt;&gt;</text>
+    <text class="name" x="1815" y="620" text-anchor="middle">DomainEvent</text>
+    <line class="separator" x1="1690" y1="634" x2="1940" y2="634"/>
+    <text class="member" x="1710" y="668">OrderTriaged</text>
+    <text class="member" x="1710" y="698">ComplianceFreeze-</text>
+    <text class="member" x="1710" y="724">Required</text>
+  </g>
+
+  <path class="dep" d="M1175 505 L1105 565" marker-end="url(#arrow)"/>
+  <path class="dep" d="M1705 480 L1530 550" marker-end="url(#arrow)"/>
+  <path class="dep" d="M1395 450 L1690 610" marker-end="url(#arrow)"/>
+  <text class="label" x="1560" y="525">emits</text>
+
+  <rect class="section" x="25" y="985" width="1950" height="440"/>
+  <text class="subtitle" x="50" y="1020">事实调查与确定性决策</text>
+
+  <g id="facts">
+    <rect class="snapshot" x="65" y="1060" width="420" height="300" rx="8"/>
+    <text class="stereo" x="275" y="1088" text-anchor="middle">&lt;&lt;Immutable Fact Snapshot&gt;&gt;</text>
+    <text class="name" x="275" y="1118" text-anchor="middle">InvestigationFacts</text>
+    <line class="separator" x1="65" y1="1132" x2="485" y2="1132"/>
+    <text class="member" x="88" y="1162">- customer: LookupResult</text>
+    <text class="member" x="88" y="1188">- assetPolicy: LookupResult</text>
+    <text class="member" x="88" y="1214">- addressRisk: LookupResult</text>
+    <text class="member" x="88" y="1240">- funding: LookupResult</text>
+    <text class="member" x="88" y="1266">- referenceRate: LookupResult</text>
+    <text class="member" x="88" y="1292">- travelRule: LookupResult</text>
+    <text class="member" x="88" y="1318">- duplicate: LookupResult</text>
+  </g>
+
+  <g id="lookup">
+    <rect class="value" x="535" y="1080" width="340" height="255" rx="8"/>
+    <text class="stereo" x="705" y="1108" text-anchor="middle">&lt;&lt;generic result&gt;&gt;</text>
+    <text class="name" x="705" y="1138" text-anchor="middle">LookupResult&lt;T&gt;</text>
+    <line class="separator" x1="535" y1="1152" x2="875" y2="1152"/>
+    <text class="member" x="560" y="1182">Found(data, evidenceRef)</text>
+    <text class="member" x="560" y="1210">NotFound(code)</text>
+    <text class="member" x="560" y="1238">Unavailable(code, retryable)</text>
+    <text class="member" x="560" y="1266">Conflict(code)</text>
+    <text class="member" x="560" y="1294">NotApplicable</text>
+  </g>
+
+  <g id="rule">
+    <rect class="policy" x="940" y="1085" width="305" height="230" rx="8"/>
+    <text class="stereo" x="1092" y="1113" text-anchor="middle">&lt;&lt;Domain Policy&gt;&gt;</text>
+    <text class="name" x="1092" y="1143" text-anchor="middle">TriageRule</text>
+    <line class="separator" x1="940" y1="1157" x2="1245" y2="1157"/>
+    <text class="member" x="962" y="1187">+ id(): String</text>
+    <text class="member" x="962" y="1215">+ evaluate(facts, policy)</text>
+    <line class="separator" x1="940" y1="1230" x2="1245" y2="1230"/>
+    <text class="small" x="962" y="1260">10 个确定性规则实现</text>
+    <text class="small" x="962" y="1286">无外部 I/O</text>
+  </g>
+
+  <g id="result">
+    <rect class="value" x="1310" y="1085" width="300" height="230" rx="8"/>
+    <text class="stereo" x="1460" y="1113" text-anchor="middle">&lt;&lt;Value Object&gt;&gt;</text>
+    <text class="name" x="1460" y="1143" text-anchor="middle">RuleResult</text>
+    <line class="separator" x1="1310" y1="1157" x2="1610" y2="1157"/>
+    <text class="member" x="1330" y="1187">- ruleId</text>
+    <text class="member" x="1330" y="1213">- passed</text>
+    <text class="member" x="1330" y="1239">- proposedDisposition</text>
+    <text class="member" x="1330" y="1265">- reasonCode</text>
+    <text class="member" x="1330" y="1291">- detail</text>
+  </g>
+
+  <g id="aggregator">
+    <rect class="service" x="1670" y="1085" width="260" height="230" rx="8"/>
+    <text class="stereo" x="1800" y="1113" text-anchor="middle">&lt;&lt;Domain Service&gt;&gt;</text>
+    <text class="name" x="1800" y="1143" text-anchor="middle">DecisionAggregator</text>
+    <line class="separator" x1="1670" y1="1157" x2="1930" y2="1157"/>
+    <text class="small" x="1690" y="1190">汇总全部 RuleResult</text>
+    <text class="small" x="1690" y="1220">保留全部失败原因</text>
+    <text class="small" x="1690" y="1250">按严重度选择 Disposition</text>
+    <text class="small" x="1690" y="1280">生成 TriageDecision</text>
+  </g>
+
+  <path class="rel" d="M485 1200 L535 1200" marker-end="url(#arrow)"/>
+  <text class="label" x="510" y="1185" text-anchor="middle">7</text>
+  <path class="rel" d="M875 1200 L940 1200" marker-end="url(#arrow)"/>
+  <text class="label" x="908" y="1185" text-anchor="middle">facts</text>
+  <path class="rel" d="M1245 1200 L1310 1200" marker-end="url(#arrow)"/>
+  <text class="label" x="1278" y="1185" text-anchor="middle">produces</text>
+  <path class="rel" d="M1610 1200 L1670 1200" marker-end="url(#arrow)"/>
+  <text class="label" x="1640" y="1185" text-anchor="middle">0..*</text>
+  <path class="dep" d="M1800 1085 L1800 920 L1705 920 L1705 480" marker-end="url(#arrow)"/>
+  <text class="label" x="1820" y="1000">creates final decision</text>
+
+  <g id="policySnapshot">
+    <rect class="snapshot" x="1000" y="1360" width="520" height="65" rx="8"/>
+    <text class="name" x="1025" y="1390">PolicySnapshot</text>
+    <text class="small" x="1025" y="1414">version · evaluationTime · slippageTolerance · travelRuleThreshold</text>
+  </g>
+  <path class="dep" d="M1092 1360 L1092 1315" marker-end="url(#arrow)"/>
+  <path class="dep" d="M1450 1360 L1760 1315" marker-end="url(#arrow)"/>
+
+  <text class="small" x="45" y="1445">图例：红色=聚合根，橙色=实体，蓝色=值对象/事件，紫色=领域策略，绿色=领域服务，虚线=依赖。</text>
+</svg>
