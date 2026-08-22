@@ -6,14 +6,28 @@
 
 下面两张是可直接打开、缩放且适合放进面试材料的 SVG UML 图：
 
-![领域模型 UML](images/domain-model-uml.svg)
+![领域模型 UML](images/domain-model-uml.png)
 
-![TriageCase 状态 UML](images/triage-case-state-uml.svg)
+![TriageCase 状态 UML](images/triage-case-state-uml.png)
 
 图片原文件：
 
 - [领域模型类图](images/domain-model-uml.svg)
+- [领域模型类图 PNG（IDEA 直接预览）](images/domain-model-uml.png)
 - [TriageCase 状态图](images/triage-case-state-uml.svg)
+- [TriageCase 状态图 PNG（IDEA 直接预览）](images/triage-case-state-uml.png)
+
+组合关系说明：实心菱形位于“整体”一端。例如 `OffRampOrder ◆── DepositReference` 中，菱形必须靠近 `OffRampOrder`；`DepositReference` 是被包含的部分。
+
+关系符号采用标准 UML 语义：
+
+- `◆──`：组合，实心菱形位于整体一端；
+- `◇──`：聚合，空心菱形位于聚合方；
+- `- - -▷`：接口实现，虚线加空心三角形，三角形指向接口；
+- `- - ->`：依赖，虚线加开放箭头，箭头指向被依赖对象；
+- `──>`：有向关联，实线加开放箭头。
+
+因此 `TriageRule - - -> PolicySnapshot` 表示规则使用策略快照，方向不能反过来。
 
 ## 1. DDD 角色概览
 

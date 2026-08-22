@@ -12,7 +12,7 @@
       .arrow { fill:none; stroke:#334155; stroke-width:3; }
     </style>
     <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-      <path d="M 1 1 L 10 6 L 1 11 Z" fill="#334155"/>
+      <path d="M 1 1 L 10 6 L 1 11" fill="none" stroke="#334155" stroke-width="1.7"/>
     </marker>
   </defs>
   <rect class="bg" width="1600" height="620"/>
@@ -49,11 +49,11 @@
   <text class="note" x="1438" y="475" text-anchor="middle">其他全部处置</text>
 
   <path class="arrow" d="M1308 255 L1308 330 L1158 330 L1158 405" marker-end="url(#arrow)"/>
-  <text class="label" x="1190" y="318">disposition= AUTO_COMPLETE</text>
-  <text class="label" x="1190" y="345">且 fundsMovementAllowed=true</text>
+  <text class="label" x="1125" y="325" text-anchor="end">disposition = AUTO_COMPLETE</text>
+  <text class="label" x="1125" y="350" text-anchor="end">且 fundsMovementAllowed = true</text>
 
   <path class="arrow" d="M1308 255 L1308 360 L1438 360 L1438 405" marker-end="url(#arrow)"/>
-  <text class="label" x="1410" y="345">其他情况</text>
+  <text class="label" x="1380" y="335">其他情况</text>
 
   <rect x="120" y="390" width="730" height="150" rx="12" fill="#fff" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8 6"/>
   <text class="note" x="150" y="425">聚合不变量</text>
