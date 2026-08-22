@@ -50,6 +50,15 @@ public class LlmAgentInvestigationAdapter implements AgentEnrichmentPort {
         if (toolbox.tools().isEmpty()) throw new IllegalArgumentException("At least one allow-listed tool is required");
     }
 
+    /**
+     * 可替换、可限额、可审计、默认离线运行的 LLM Agent Demo，用来证明模型隔离和工具调用机制。但进一步分析后，
+     * 它不应该进入默认核心链路。当前事实缺口与工具是一对一且依赖关系确定，使用 LLM 选择工具只会增加成本、延迟和不确定性。生产主链路应由确定性调查编排器完成，
+     * LLM 仅用于非结构化材料处理和人工复核辅助，且永远不能直接生成资金处置决定。
+     * @param order
+     * @param policy
+     * @param currentFacts
+     * @return
+     */
     @Override
     public InvestigationFacts enrich(Order order, PolicySnapshot policy, InvestigationFacts currentFacts) {
         Objects.requireNonNull(order, "order");
