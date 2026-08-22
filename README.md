@@ -15,17 +15,21 @@
 
 ## 构建
 
-```bash
+```powershell
 mvn clean package
 ```
+
+确认 `mvn -version` 显示的运行时为 Java 21；Maven 会优先使用 `JAVA_HOME`。
 
 ## 一条命令跑完整队列
 
 先完成构建，然后在项目根目录执行：
 
-```bash
-java -Dspring.profiles.active=cli -jar target/asset-0.0.1-SNAPSHOT.jar triage
+```powershell
+java "-Dspring.profiles.active=cli" -jar target\asset-0.0.1-SNAPSHOT.jar triage
 ```
+
+PowerShell 中必须给整个 `-Dspring.profiles.active=cli` 参数加引号，否则可能被解析成错误的主类名。
 
 输入文件：`materials/orders.jsonl`
 
@@ -36,8 +40,8 @@ java -Dspring.profiles.active=cli -jar target/asset-0.0.1-SNAPSHOT.jar triage
 
 ## 一条命令跑评测
 
-```bash
-java -Dspring.profiles.active=cli -jar target/asset-0.0.1-SNAPSHOT.jar evaluate --materials materials --golden evaluation/golden-cases.json --report build/evaluation-report.json
+```powershell
+java "-Dspring.profiles.active=cli" -jar target\asset-0.0.1-SNAPSHOT.jar evaluate --materials materials --golden evaluation\golden-cases.json --report build\evaluation-report.json
 ```
 
 评测将实际结果与黄金用例比较，重点检查：
@@ -53,15 +57,15 @@ unsafeAutoCompletions = 0
 
 直接运行 `AssetApplication`，或执行：
 
-```bash
-java -jar target/asset-0.0.1-SNAPSHOT.jar
+```powershell
+java -jar target\asset-0.0.1-SNAPSHOT.jar
 ```
 
 然后调用与 CLI 相同的文件驱动流程：
 
-```bash
-curl -X POST http://localhost:8080/api/v1/test/triage
-curl -X POST http://localhost:8080/api/v1/test/evaluate
+```powershell
+curl.exe -X POST http://localhost:8080/api/v1/test/triage
+curl.exe -X POST http://localhost:8080/api/v1/test/evaluate
 ```
 
 ## 安全边界
