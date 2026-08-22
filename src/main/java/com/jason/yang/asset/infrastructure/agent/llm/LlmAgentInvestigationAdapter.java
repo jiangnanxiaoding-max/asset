@@ -31,6 +31,9 @@ public class LlmAgentInvestigationAdapter implements AgentEnrichmentPort {
     private final LlmAgentClient client;
     private final AgentToolbox toolbox;
     private final AgentExecutionPolicy executionPolicy;
+    /**
+     * 多订单共享的 Batch Budget
+     */
     private final AgentBatchBudget batchBudget;
     private final AgentRunTracePort tracePort;
 

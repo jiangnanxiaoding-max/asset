@@ -1,5 +1,8 @@
 package com.jason.yang.asset.domain;
 
+/**
+ * audit result结果集
+ */
 public enum Disposition {
     AUTO_COMPLETE,
     HOLD,
